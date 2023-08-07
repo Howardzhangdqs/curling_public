@@ -1,0 +1,11 @@
+{
+  "name": "curling_core",
+  "version": "0.1.0",
+  "description": "Curling project core (open source part)",
+  "main": "index.js",
+  "scripts": {
+    "video:segment": "cd video_segment && python main.py"
+  },
+  "author": "HowardZhangdqs",
+  "license": "Apache-2.0"
+}

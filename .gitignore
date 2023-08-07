@@ -1,0 +1,9 @@
+video/
+node_modules/
+*.mp4
+*.pt
+desktop.ini
+__pycache__/
+*.dll
+*.so
+*.exe
