@@ -1,0 +1,1 @@
+g++ SoftData.cpp -o ./bin/SoftData

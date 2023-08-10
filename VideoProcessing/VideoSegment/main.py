@@ -1,4 +1,4 @@
-from option import OPT
+from option import OPT as option
 import os
 import sys
 import cv2
@@ -15,11 +15,11 @@ def getCurrentState_color(frame) -> List:
 
     res: List = [[], []]
 
-    ver: int = OPT.STATE_VERTICAL
+    ver: int = option.STATE_VERTICAL
 
-    offset: int = OPT.STATE_OFFSET
+    offset: int = option.STATE_OFFSET
 
-    for i in OPT.STATE_POSITION:
+    for i in option.STATE_POSITION:
 
         part1 = hsv[ver[0] - 5: ver[0] + 5, i - 5: i + 5]
         part2 = hsv[ver[1] - 5: ver[1] + 5, i - 5: i + 5]
@@ -27,7 +27,7 @@ def getCurrentState_color(frame) -> List:
         part1 = np.average(np.average(part1, axis=0), axis=0)
         part2 = np.average(np.average(part2, axis=0), axis=0)
 
-        print(part1, part2)
+        # print(part1, part2)
 
         part1 = part1.tolist()
         part2 = part2.tolist()
@@ -40,8 +40,8 @@ def getCurrentState_color(frame) -> List:
         res[0].append(part1)
         res[1].append(part2)
 
-    if OPT.debug:
-        for i in OPT.STATE_POSITION:
+    if option.debug:
+        for i in option.STATE_POSITION:
             frame[ver[0], i] = [0, 0, 255]
             frame[ver[1], i] = [0, 0, 255]
 
@@ -58,22 +58,21 @@ def getCurrentState_merge(color: List):
         res[0][j] = True
 
         for i, item in enumerate(items):
-            if (not item in OPT.CurlingInterval_red[i]):
+            if (not item in option.CurlingInterval_red[i]):
                 res[0][j] = False
 
     for j, items in enumerate(color[1]):
         res[1][j] = True
 
         for i, item in enumerate(items):
-            if (not item in OPT.CurlingInterval_yel[i]):
+            if (not item in option.CurlingInterval_yel[i]):
                 res[1][j] = False
 
     return res
 
 
 def getCurrentState_filter(state: List):
-    res1 = 0
-    res2 = 0
+    res1, res2 = 0, 0
 
     for i, item in enumerate(state[0]):
         if (item == False):
@@ -91,57 +90,63 @@ def getCurrentState_filter(state: List):
 def getCurrentState(frame):
     return getCurrentState_merge(getCurrentState_color(frame))
 
+
+def FlattenList(nested_list):
+    flattened_list = []
+    for item in nested_list:
+        if isinstance(item, list):
+            flattened_list.extend(FlattenList(item))
+        else:
+            flattened_list.append(item)
+    return flattened_list
+
+
+def BoolList2StringList(ls):
+    res = []
+    for i in ls:
+        res.append("1" if i else "0")
+    return res
+
+
 if __name__ == '__main__':
 
-    cap = cv2.VideoCapture(OPT.VIDEO_PATH)
+    cap = cv2.VideoCapture(option.VIDEO_PATH)
 
     if not cap.isOpened():
         print("无法打开视频文件")
-
-    for i in range(701 + 2320):
-        cap.grab()
+    
+    # for i in range(1398):
+    #     cap.grab()
 
     i: int = 0
 
+    res = []
+
     while True:
 
-        # 读取帧
         ret, frame = cap.read()
-
-        # 检查是否成功读取帧
         if not ret:
             break
 
-        # frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-
         i += 1
 
-        # print((
-        #     getCurrentState(getCurrentState_color(frame))))
-        # getCurrentState_filter(getCurrentState(getCurrentState_color(frame)))
-
-        t = getCurrentState_merge(getCurrentState_color(frame))
-
-        # result = [subarr[:-1] for subarr in t[:2]]
-        # result = [subarr[:-1] for subarr in result[:2]]
+        t = getCurrentState(frame)
         print(i, t)
 
-        if (i % 100 == 0):
-            print(i)
+        res.append(" ".join(BoolList2StringList(FlattenList(t))))
 
-        # if (not all(result[0]) or not all(result[1])):
-        #     print(i, result)
-        #     cv2.imshow('frame', frame)
-        #     cv2.waitKey(0)
-        #     # exit(0)
+        if (i >= 3200):
+            break
 
-        # 显示帧
-        # cv2.imshow('frame', frame)
+        cv2.imshow('frame', frame)
 
-        # 按下q键退出
-        # if cv2.waitKey(1) & 0xFF == ord('q'):
-        #     break
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
 
-    # 释放
     cap.release()
     cv2.destroyAllWindows()
+
+    file = open("./output/P1.txt", "w")
+    file.write(str(len(res)) + "\n")
+    file.write("\n".join(res))
+    file.close()
