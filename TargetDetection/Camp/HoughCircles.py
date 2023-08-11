@@ -31,7 +31,7 @@ cv2.createTrackbar('maxRadius', 'colorTest', icol[5], 1000, nothing)
 # Raspberry pi file path example.
 # frame = cv2.imread('/home/pi/python3/opencv/color-test/colour-circles-test.jpg')
 # Windows file path example.
-frame = cv2.imread('./testData/CHNvsKR-19.jpg')
+frame = cv2.imread('./testData/1-00024.png')
 
 x, y = frame.shape[0:2]
 # frame = cv2.resize(frame, (int(y / 2), int(x / 2)))
@@ -59,10 +59,13 @@ cimg = cv2.inRange(hsv, np.array([102, 177, 177]), np.array([118, 255, 224]))
 
 frame = cv2.Canny(cimg, 10, 250, 5)
 
-frame = cv2.copyMakeBorder(frame, 100, 100, 100, 100,
-                           cv2.BORDER_CONSTANT, value=[0, 0, 0])
-src = cv2.copyMakeBorder(src, 100, 100, 100, 100,
-                         cv2.BORDER_CONSTANT, value=[0, 0, 0])
+kernel = np.ones((5, 5), np.uint8)
+frame = cv2.dilate(frame, kernel)
+
+# frame = cv2.copyMakeBorder(frame, 100, 100, 100, 100,
+#                            cv2.BORDER_CONSTANT, value=[0, 0, 0])
+# src = cv2.copyMakeBorder(src, 100, 100, 100, 100,
+#                          cv2.BORDER_CONSTANT, value=[0, 0, 0])
 
 while True:
     # Get HSV values from the GUI sliders.
@@ -113,7 +116,7 @@ while True:
 
     if not circles is None:
 
-        # print(i)
+        # circles = [[[523, 559, 136]]]
 
         for circle in circles[0]:
             # get the center and radius of the circle
@@ -124,7 +127,7 @@ while True:
             # draw the circle center
             cv2.circle(img, (x, y), 3, (0, 255, 0), -1)
             # draw the circle outline
-            cv2.circle(img, (x, y), r, (0, 0, 255), 2)
+            cv2.circle(img, (x, y), r, (0, 0, 255), 10)
 
     # Show final output image
     cv2.imshow('colorTest', img)

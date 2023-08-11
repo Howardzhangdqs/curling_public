@@ -77,7 +77,7 @@ while True:
         for i in lines:
             print(i)
             x1, y1, x2, y2 = i[0]
-            cv2.line(img, (x1, y1), (x2, y2), (0, 255, 0), 1)
+            cv2.line(img, (x1, y1), (x2, y2), (0, 255, 0), 3)
 
     # Show final output image
     cv2.imshow('colorTest', img)

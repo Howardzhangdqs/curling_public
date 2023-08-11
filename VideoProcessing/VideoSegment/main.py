@@ -131,7 +131,7 @@ if __name__ == '__main__':
         i += 1
 
         t = getCurrentState(frame)
-        print(i, t)
+        # print(i, t)
 
         res.append(" ".join(BoolList2StringList(FlattenList(t))))
 
@@ -150,3 +150,4 @@ if __name__ == '__main__':
     file.write(str(len(res)) + "\n")
     file.write("\n".join(res))
     file.close()
+    print("Python OpenCV Process - Finished")
