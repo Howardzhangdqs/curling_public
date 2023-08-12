@@ -1,6 +1,11 @@
 import cv2
 import numpy as np
 from rich import print
+from tsmoothie.utils_func import sim_randomwalk
+from tsmoothie.smoother import LowessSmoother, DecomposeSmoother
+import matplotlib.pyplot as plt
+import easydict
+from sklearn.neighbors import LocalOutlierFactor
 
 
 class rectificate:
@@ -8,7 +13,6 @@ class rectificate:
 
         HOMO_COLOR = 114
         _, img = cv2.threshold(oimg, 127, 255, cv2.THRESH_BINARY)
-
 
         l, r = 0, 0
         bl, br = 0, 0
@@ -110,35 +114,38 @@ def SceneClassification(img):
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv, np.array([46, 0, 164]), np.array([186, 91, 255]))
 
+    cv2.imshow("mask1", mask)
+
+    _mask = np.zeros([img.shape[0]+2, img.shape[1]+2], np.uint8)
+
+    cv2.floodFill(mask, _mask, (0, 0), 0,
+                  0, 0, cv2.FLOODFILL_FIXED_RANGE)
+
+    cv2.floodFill(mask, _mask, (10, 10), 0,
+                  0, 0, cv2.FLOODFILL_FIXED_RANGE)
+
+    cv2.imshow("mask2", mask)
+
     mean = cv2.mean(mask)[0]
-    print(mean, end=" ")
+    # print(mean)
 
-
-    if (mean > 100):
+    if (mean > 110):
         return True, mean
 
     return False, mean
-
-
-# if __name__ == "__main__":
-#     for i in range(1, 5):
-#         frame = cv2.imread(f"./testData/{i}.png")
-#         SceneClassification(frame)
-
-# exit(0)
 
 if __name__ == "__main__":
     from tqdm import *
     from sklearn.covariance import EllipticEnvelope
     cap = cv2.VideoCapture('../../videos/target2.tiny.mp4')
-    # out = cv2.VideoWriter('output.mp4',
-    #                       cv2.VideoWriter_fourcc(*'mp4v'),
-    #                       cap.get(cv2.CAP_PROP_FPS),
-    #                       (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))))
+    
     if cap.isOpened():
+        res = []
         data = []
 
-        for i in range(200):
+        status = 0
+
+        for i in range(0):  # 1900
             cap.grab()
 
         with tqdm(total=cap.get(7)) as pbar:
@@ -153,65 +160,86 @@ if __name__ == "__main__":
 
                 if isScene:
 
+                    if status == 2:
+                        res.append({
+                            "type": 2,
+                            "data": data
+                        })
+                        data = []
+
+                    status = 1
+
                     img2, tl, tr, bl, br = rectificate.find(img)
-                    # bl, br = rectificate.expand(img.shape, tl, tr, bl, br)
-                    # img3 = rectificate.trans(img, tl, tr, bl, br)
-                    cv2.imshow("video1", img2)
-                    # cv2.imshow("video2", img)
-                    # out.write(img3)
-                    key = cv2.waitKey(1)
-                    # print(key)
+                    cv2.imshow("video1", rectificate.trans(img2, tl, tr, bl, br))
+
+                    key = cv2.waitKey(0)
                     if key == 113:
                         break
+
                     data.append([tl, tr, bl, br])
 
                 else:
+
+                    if status == 1:
+                        res.append({
+                            "type": 1,
+                            "data": data
+                        })
+                        data = []
+
+                    status = 2
+
                     cv2.imshow("video1", img)
                     data.append([(0, 0), (w, 0), (h, 0), (w, h)])
-                    key = cv2.waitKey(1)
-                # img3 = rectificate.trans(img, tl, tr, bl, br);
-                # cv2.imshow("vedio1", img3)
-                # cv2.imshow("vedio2", img)
-                # cv2.waitKey(0);
+
+                    key = cv2.waitKey(0)
+                    if key == 113:
+                        break
                 pbar.update(1)
-        # out.release()
-        ls = {
-            "tl": {
-                "x": [i[0][0] for i in data],
-                "y": [i[0][1] for i in data]
-            },
-            "tr": {
-                "x": [i[1][0] for i in data],
-                "y": [i[1][1] for i in data]
-            },
-            "bl": {
-                "x": [i[2][0] for i in data],
-                "y": [i[2][1] for i in data]
-            },
-            "br": {
-                "x": [i[3][0] for i in data],
-                "y": [i[3][1] for i in data]
+
+        print(res)
+
+        data = []
+
+        ans = []
+
+        for item in res:
+            tempdata = {
+                "tl": {
+                    "x": [],
+                    "y": []
+                },
+                "tr": {
+                    "x": [],
+                    "y": []
+                },
+                "bl": {
+                    "x": [],
+                    "y": []
+                },
+                "br": {
+                    "x": [],
+                    "y": []
+                }
             }
-        }
-        # ls["tl"] = [i[0] for i in data]
-        # ls["tr"] = [i[1] for i in data]
-        # ls["bl"] = [i[2] for i in data]
-        # ls["br"] = [i[3] for i in data]
-        print(ls)
-        # predictions = EllipticEnvelope().fit(ls["tl"]).predict(ls["tl"])
-        # print(predictions)
-        # cap = cv2.VideoCapture('test2.mp4')
-        # i = -1
-        # while True:
-        #     ret, img = cap.read()
-        #     if (not ret):
-        #         break
-        #     i += 1
-        #     tl, tr, bl, br = ls["tl"][i], ls["tr"][i], ls["bl"][i], ls["br"][i]
-        #     img3 = rectificate.trans(img, tl, tr, bl, br)
-        #     if (predictions[i] < 0):
-        #         cv2.rectangle(
-        #             img3, (0, 0), (img3.shape[0], img3.shape[1]), (0, 0, 255), 3)
-        #     cv2.imshow("video1", img3)
-        #     cv2.imshow("video2", img)
-        #     cv2.waitKey(1)
+
+            # tempdata = easydict.EasyDict(tempdata)
+            for val in item["data"]:
+                tempdata["tl"]["x"].append(val[0][0])
+                tempdata["tl"]["y"].append(val[0][1])
+
+                tempdata["tr"]["x"].append(val[1][0])
+                tempdata["tr"]["y"].append(val[1][1])
+                
+                tempdata["bl"]["x"].append(val[2][0])
+                tempdata["bl"]["y"].append(val[2][1])
+                
+                tempdata["br"]["x"].append(val[3][0])
+                tempdata["br"]["y"].append(val[3][1])
+
+            ans.append({
+                "type": item["type"],
+                "data": tempdata
+            })
+        
+        print(ans)

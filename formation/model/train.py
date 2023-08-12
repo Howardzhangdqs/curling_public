@@ -96,45 +96,33 @@ def train_and_test(model, criterion, optimizer, train_data, train_labels, test_d
 
         # 将模型设置为评估模式
         model.eval()
-        # 定义一个变量，表示测试集的总损失
         test_loss = 0.0
-        # 定义一个变量，表示测试集的总准确数
         test_correct = 0
-        # 使用一个for循环，遍历测试集的每个批次
+
         for i in range(0, len(test_data), batch_size):
-            # 获取当前批次的数据和标签
             inputs = test_data[i:i+batch_size]
             labels = test_labels[i:i+batch_size]
-            # 将数据和标签转换为适合卷积神经网络输入的形状，即(batch_size, channel, height, width)
             inputs = inputs.permute(0, 3, 1, 2)
 
-            # 用模型对当前批次的数据进行预测，得到输出
             outputs = model(inputs)
-            # 计算输出和标签之间的损失函数
             loss = criterion(outputs, labels.long())
-            # 累加当前批次的损失到总损失中
             test_loss += loss.item()
-            # 获取输出中最大值的索引，作为预测的类别
             _, preds = torch.max(outputs, 1)
-            # 比较预测的类别和真实的标签，计算正确的个数
             test_correct += torch.sum(preds == labels.long())
-        # 计算测试集的平均损失
+            
         test_loss = test_loss / len(test_data)
-        # 计算测试集的准确率
+        
         test_accuracy = test_correct / len(test_data)
-        # 打印测试集的平均损失和准确率
+        
         print(
             f'Epoch {epoch}, Test loss: {test_loss:.4f}, Test accuracy: {test_accuracy:.4f}')
 
-        # 判断是否达到训练的终止条件，比如达到目标准确率或者最大迭代次数
+
         if test_accuracy >= target_accuracy or epoch >= max_epoch:
-            # 如果是，将训练继续的变量设为False，结束while循环
             keep_training = False
         else:
-            # 如果不是，将训练的迭代次数加一，继续while循环
             epoch += 1
 
 
-# 调用训练和测试的函数，开始训练模型
 train_and_test(model, criterion, optimizer, train_data,
                train_labels, test_data, test_labels, batch_size)

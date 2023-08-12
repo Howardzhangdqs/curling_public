@@ -7,7 +7,7 @@ def nothing(*arg):
         pass
  
 # Initial HSV GUI slider values to load on program start.
-icol = (102, 177, 31, 118, 255, 224)    # Green
+icol = (167, 120, 194, 175, 166, 235)    # Green
 #icol = (18, 0, 196, 36, 255, 255)  # Yellow
 #icol = (89, 0, 0, 125, 255, 255)  # Blue
 #icol = (0, 100, 80, 10, 255, 255)   # Red
@@ -24,7 +24,7 @@ cv2.createTrackbar('highVal', 'colorTest', icol[5], 255, nothing)
 # Raspberry pi file path example.
 #frame = cv2.imread('/home/pi/python3/opencv/color-test/colour-circles-test.jpg')
 # Windows file path example.
-frame = cv2.imread('./testData/Snipaste_2023-08-07_08-25-49.png')
+frame = cv2.imread('./InsiderEdge/testData/2.png')
  
 while True:
     # Get HSV values from the GUI sliders.
@@ -39,18 +39,18 @@ while True:
     cv2.imshow('frame', frame)
     
     # Blur methods available, comment or uncomment to try different blur methods.
-    frameBGR = cv2.GaussianBlur(frame, (7, 7), 0)
+#     frameBGR = cv2.GaussianBlur(frame, (7, 7), 0)
     #frameBGR = cv2.medianBlur(frameBGR, 7)
     #frameBGR = cv2.bilateralFilter(frameBGR, 15 ,75, 75)
     """kernal = np.ones((15, 15), np.float32)/255
     frameBGR = cv2.filter2D(frameBGR, -1, kernal)"""
 	
     # Show blurred image.
-    cv2.imshow('blurred', frameBGR)
+#     cv2.imshow('blurred', frameBGR)
 	
     # HSV (Hue, Saturation, Value).
     # Convert the frame to HSV colour model.
-    hsv = cv2.cvtColor(frameBGR, cv2.COLOR_BGR2HSV)
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     
     # HSV values to define a colour range.
     colorLow = np.array([lowHue,lowSat,lowVal])
