@@ -17,7 +17,7 @@ def nothing(*arg):
 #                                     maxRadius=200)
 
 
-icol = (2, 100, 100, 66, 0, 0)
+icol = (2, 300, 100, 66, 0, 0)
 
 cv2.namedWindow('colorTest')
 # Lower range colour sliders.
@@ -31,7 +31,7 @@ cv2.createTrackbar('maxRadius', 'colorTest', icol[5], 1000, nothing)
 # Raspberry pi file path example.
 # frame = cv2.imread('/home/pi/python3/opencv/color-test/colour-circles-test.jpg')
 # Windows file path example.
-frame = cv2.imread('./testData/1-00024.png')
+frame = cv2.imread('./testData/bad.png')
 
 x, y = frame.shape[0:2]
 # frame = cv2.resize(frame, (int(y / 2), int(x / 2)))
@@ -126,8 +126,15 @@ while True:
             r = int(r)
             # draw the circle center
             cv2.circle(img, (x, y), 3, (0, 255, 0), -1)
+
+            # for i in range(-100, 100, 5):
+            #     cv2.circle(img, (x, y), r + i, (0, 0, 255), 1)
+                # 75
+
+
             # draw the circle outline
-            cv2.circle(img, (x, y), r, (0, 0, 255), 10)
+            # cv2.circle(img, (x, y), r, (0, 0, 255), 5)
+            cv2.circle(img, (x, y), r + 60, (0, 255, 0), 5)
 
     # Show final output image
     cv2.imshow('colorTest', img)

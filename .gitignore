@@ -1,6 +1,7 @@
 video/
 node_modules/
 *.mp4
+*.avi
 *.pt
 desktop.ini
 __pycache__/

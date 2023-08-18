@@ -88,6 +88,7 @@ def getCurrentState_filter(state: List):
 
 
 def getCurrentState(frame):
+    # print(getCurrentState_color(frame.copy()))
     return getCurrentState_merge(getCurrentState_color(frame))
 
 
@@ -115,7 +116,7 @@ if __name__ == '__main__':
     if not cap.isOpened():
         print("无法打开视频文件")
     
-    # for i in range(1398):
+    # for i in range(1000):
     #     cap.grab()
 
     i: int = 0
@@ -131,7 +132,7 @@ if __name__ == '__main__':
         i += 1
 
         t = getCurrentState(frame)
-        # print(i, t)
+        print(i, t)
 
         res.append(" ".join(BoolList2StringList(FlattenList(t))))
 
@@ -141,7 +142,7 @@ if __name__ == '__main__':
         cv2.imshow('frame', frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+            exit(0)
 
     cap.release()
     cv2.destroyAllWindows()

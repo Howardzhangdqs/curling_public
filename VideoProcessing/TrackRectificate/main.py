@@ -98,13 +98,20 @@ class rectificate:
         # print("expand", br, bl);
         return bl, br
 
-    def trans(oimg, tl, tr, bl, br):
+    def trans(oimg, tl, tr, bl, br, PreserveWidth=True):
         # print(oimg.shape);
         points1 = np.float32([list(tl), list(tr), list(bl), list(br)])
-        points2 = np.float32([[0, 0], [oimg.shape[1], 0], [0, oimg.shape[0]], [
-                             oimg.shape[1], oimg.shape[0]]])
+        print([list(tl), list(tr), list(bl), list(br)])
+
+        width = oimg.shape[1]
+
+        if (PreserveWidth):
+            width = (tr[0] - tl[0] + br[0] - bl[0]) // 2
+
+        points2 = np.float32([[0, 0], [width, 0], [0, oimg.shape[0]], [
+                             width, oimg.shape[0]]])
         M = cv2.getPerspectiveTransform(points1, points2)
-        img = cv2.warpPerspective(oimg, M, (oimg.shape[1], oimg.shape[0]))
+        img = cv2.warpPerspective(oimg, M, (width, oimg.shape[0]))
         return img
 
 
@@ -114,7 +121,7 @@ def SceneClassification(img):
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv, np.array([46, 0, 164]), np.array([186, 91, 255]))
 
-    cv2.imshow("mask1", mask)
+    # cv2.imshow("mask1", mask)
 
     _mask = np.zeros([img.shape[0]+2, img.shape[1]+2], np.uint8)
 
@@ -124,7 +131,7 @@ def SceneClassification(img):
     cv2.floodFill(mask, _mask, (10, 10), 0,
                   0, 0, cv2.FLOODFILL_FIXED_RANGE)
 
-    cv2.imshow("mask2", mask)
+    # cv2.imshow("mask2", mask)
 
     mean = cv2.mean(mask)[0]
     # print(mean)
@@ -134,11 +141,12 @@ def SceneClassification(img):
 
     return False, mean
 
+
 if __name__ == "__main__":
     from tqdm import *
     from sklearn.covariance import EllipticEnvelope
     cap = cv2.VideoCapture('../../videos/target2.tiny.mp4')
-    
+
     if cap.isOpened():
         res = []
         data = []
@@ -169,10 +177,13 @@ if __name__ == "__main__":
 
                     status = 1
 
-                    img2, tl, tr, bl, br = rectificate.find(img)
-                    cv2.imshow("video1", rectificate.trans(img2, tl, tr, bl, br))
+                    cv2.imshow("video", img)
 
-                    key = cv2.waitKey(0)
+                    img2, tl, tr, bl, br = rectificate.find(img)
+                    cv2.imshow("video1", rectificate.trans(
+                        img, tl, tr, bl, br))
+
+                    key = cv2.waitKey(1)
                     if key == 113:
                         break
 
@@ -189,14 +200,16 @@ if __name__ == "__main__":
 
                     status = 2
 
+                    cv2.imshow("video", img)
                     cv2.imshow("video1", img)
                     data.append([(0, 0), (w, 0), (h, 0), (w, h)])
 
-                    key = cv2.waitKey(0)
+                    key = cv2.waitKey(1)
                     if key == 113:
                         break
                 pbar.update(1)
 
+        # exit(0)
         print(res)
 
         data = []
@@ -230,10 +243,10 @@ if __name__ == "__main__":
 
                 tempdata["tr"]["x"].append(val[1][0])
                 tempdata["tr"]["y"].append(val[1][1])
-                
+
                 tempdata["bl"]["x"].append(val[2][0])
                 tempdata["bl"]["y"].append(val[2][1])
-                
+
                 tempdata["br"]["x"].append(val[3][0])
                 tempdata["br"]["y"].append(val[3][1])
 
@@ -241,5 +254,29 @@ if __name__ == "__main__":
                 "type": item["type"],
                 "data": tempdata
             })
-        
+
+            smoother = LowessSmoother(smooth_fraction=0.3, iterations=1)
+            smoother.smooth(
+                np.array([tempdata["tl"]["x"], tempdata["tr"]["x"], tempdata["bl"]["x"], tempdata["br"]["x"]]))
+
+            # generate intervals
+            low, up = smoother.get_intervals('prediction_interval')
+
+            # plot the smoothed timeseries with intervals
+            plt.figure(figsize=(18, 5))
+
+            for i in range(4):
+
+                plt.subplot(1, 4, i+1)
+                plt.plot(smoother.smooth_data[i], linewidth=3, color='blue')
+                plt.plot(smoother.data[i], '.k')
+                plt.title(f"timeseries {i+1}")
+                plt.xlabel('time')
+
+                plt.fill_between(
+                    range(len(smoother.data[i])), low[i], up[i], alpha=0.3)
+
+            plt.show()
+
         print(ans)
+        print("Data written to P3")

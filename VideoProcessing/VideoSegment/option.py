@@ -10,7 +10,7 @@ class DefaultOption(object):
         self.STATE_VERTICAL = (37, 62)
         self.STATE_OFFSET = 3
         self.VIDEO_PATH = os.path.join(
-            os.path.dirname(__file__), '../../videos/target2.tiny.mp4')
+            os.path.dirname(__file__), '../../videos/final1.mp4')
 
         self.CurlingInterval_offset = 5
 
@@ -26,9 +26,9 @@ class DefaultOption(object):
 
         # 黄色冰壶
         self.CurlingInterval_yel = [
-            P.closed(157, 166.5),
+            P.closed(152, 166.5),
             P.closed(113, 120),
-            P.closed(161, 170.5)
+            P.closed(159, 170.5)
         ]
 
         self.debug = True

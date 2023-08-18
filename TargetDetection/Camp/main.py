@@ -64,7 +64,7 @@ def CampFind(frame):
     #         cv2.circle(_frame, (x, y), 3, (0, 255, 0), -1)
     #         cv2.circle(_frame, (x, y), r, (0, 0, 255), 2)
 
-    cv2.imshow("video2", _frame)
+    # cv2.imshow("video2", _frame)
 
     return circles, src, frame
 
@@ -104,31 +104,31 @@ def CampFilter(circle, src, canny):
             MaxMean = Mean
             MaxCircle = (x, y, r)
 
-    # circle = [MaxCircle]
+    circle = [MaxCircle]
 
-    # for i in range(40, 100, 5):
-    #     circle.append((MaxCircle[0], MaxCircle[1], MaxCircle[2] + i))
+    for i in range(40, 100, 5):
+        circle.append((MaxCircle[0], MaxCircle[1], MaxCircle[2] + i))
 
-    # MaxMean, MaxCircle = 0.0, 0
+    MaxMean, MaxCircle = 0.0, 0
 
-    # for index, i in enumerate(circle):
-    #     x, y, r = i
-    #     x = int(x)
-    #     y = int(y)
-    #     r = int(r)
+    for index, i in enumerate(circle):
+        x, y, r = i
+        x = int(x)
+        y = int(y)
+        r = int(r)
 
-    #     mat = SrcMat.copy()
-    #     cv2.circle(mat, (x, y), r, (255), 1)
+        mat = SrcMat.copy()
+        cv2.circle(mat, (x, y), r, (255), 1)
 
-    #     img = (mat[:, :]) / 255. * (canny[:, :]) / 255.
+        img = (mat[:, :]) / 255. * (canny[:, :]) / 255.
 
-    #     Mean = cv2.mean(img)[0]
+        Mean = cv2.mean(img)[0]
 
-    #     if (MaxMean < Mean):
-    #         MaxMean = Mean
-    #         MaxCircle = (x, y, r)
+        if (MaxMean < Mean):
+            MaxMean = Mean
+            MaxCircle = (x, y, r)
 
-    return (MaxCircle[0] - ImgBroaden, MaxCircle[1] - ImgBroaden, MaxCircle[2]), src, canny
+    return (MaxCircle[0] - ImgBroaden, MaxCircle[1] - ImgBroaden, MaxCircle[2]), mat, canny
 
 
 def getCurrentCamp(frame):
