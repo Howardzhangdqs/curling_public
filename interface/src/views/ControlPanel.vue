@@ -3,7 +3,7 @@
 
 		<v-col>
 			<v-sheet cols="8" class="covery">
-				<ArtPlayer url="/target.tiny.mp4" @get-instance="getArtPlayerInstance"></ArtPlayer>
+				<ArtPlayer url="/final1.mp4" @get-instance="getArtPlayerInstance"></ArtPlayer>
 				<!-- <video-player controls :options="player_config" class="video-player vjs-custom-skin" 
 					ref="video_player"></video-player> -->
 			</v-sheet>
@@ -25,13 +25,17 @@
 						</v-list-item>
 					</template>
 
-					<v-divider class="my-2"></v-divider>
+					<template v-if="PhysicalSimulation">
 
-					<v-list-item link color="grey-lighten-4">
-						<v-sheet rounded="lg" elevation="10" class="left-sheet">
-							<v-img src="/5.png" v-if="timer >= 20"></v-img>
-						</v-sheet>
-					</v-list-item>
+						<v-divider class="my-2"></v-divider>
+
+						<v-list-item link color="grey-lighten-4">
+							<v-sheet rounded="lg" elevation="10" class="left-sheet">
+								<v-img :src="PhysicalSimulation"></v-img>
+							</v-sheet>
+						</v-list-item>
+
+					</template>
 
 					<v-divider class="my-2"></v-divider>
 
@@ -63,7 +67,6 @@
 import { reactive, ref, onMounted } from "vue";
 import type { Ref } from "vue";
 
-import { VideoPlayer } from "@videojs-player/vue";
 import Artplayer from "artplayer";
 
 import axios from "axios";
@@ -71,79 +74,55 @@ import axios from "axios";
 import { TTS } from "./tts";
 
 import ArtPlayer from "@/components/ArtPlayer.vue";
+import type { ReactiveVariable } from "vue/macros";
+
+import * as Hook from "./hook";
+
+import { type NLPType, type PhysicalType } from "./typing";
 
 const sleep = (delay: number) => new Promise((resolve) => setTimeout(resolve, delay));
 
-
-const links: string[] = [
-	"控制面板",
-	"模块状况"
-];
+const PhysicalSimulation: Ref<string> = ref("");
 
 
+axios.get("/data.json").then(({ data }) => {
+	console.log(data);
+	datals = reactive(data.data);
 
-const msg: Ref<string> = ref("");
+	const nlps = data.nlp as NLPType[];
+	for (const nlp of nlps) {
+		Hook.AddHook(nlp.time, () => {
+			TTS(nlp.content);
+
+			(async () => {
+				let i = 0;
+				while ((i) <= nlp.content.length) {
+					// console.log(new Date());
+
+					i += Math.round(Math.random() * 10);
+					answer_msg.value = nlp.content.slice(0, i);
+					// console.log(new Date());
+
+					await sleep(100);
+
+					// console.log(new Date());
+				}
+			})();
+		});
+	};
+
+	const physicals = data.physical as PhysicalType[];
+
+	for (const physical of physicals) {
+		Hook.AddHook(physical.time, () => {
+			PhysicalSimulation.value = physical.src;
+			console.log(PhysicalSimulation.value);
+		})
+	}
+});
 
 const msg_loading: Ref<boolean> = ref(false);
-
-const answer = "场上已被清空，暂时无法很好判断场面局势，我无法根据坐标分析局势。请提供更具体的问题或信息，让我能够更好地回答您的问题。";
 const answer_msg: Ref<string> = ref("");
-
-const msg_handle = () => {
-	// console.log(msg.value);
-	msg_loading.value = true;
-
-	answer_msg.value = "";
-
-	let i = 0;
-
-	setTimeout(() => {
-		msg_loading.value = false;
-
-
-		TTS(answer);
-
-		(async () => {
-			while ((i) <= answer.length) {
-				// console.log(new Date());
-
-				i += Math.round(Math.random() * 10);
-				answer_msg.value = answer.slice(0, i);
-				// console.log(new Date());
-
-				await sleep(100);
-
-				// console.log(new Date());
-			}
-		})();
-	}, (5000));
-};
-
-
-
-const player_config = {
-	playbackRates: [0.5, 0.75, 1, 1.5, 1.75, 2],
-	autoplay: true,
-	muted: false,
-	loop: false,
-	preload: "auto",
-	language: "zh-CN",
-	// aspectRatio: '16:9',
-	fluid: true,
-	sources: [{
-		type: "video/mp4",
-		src: "/target.tiny.mp4"
-	}],
-	poster: "",
-	notSupportedMessage: "此视频暂无法播放，请稍后再试",
-	controlBar: {
-		timeDivider: true,
-		durationDisplay: true,
-		remainingTimeDisplay: true,
-		fullscreenToggle: true
-	},
-	width: 100
-};
 
 
 const curling_data = reactive([
@@ -174,50 +153,27 @@ const video_player = ref();
 
 onMounted(() => {
 	fake_handle();
-})
+});
 
 // 3.24开始
 
-const datals = [
-	[0, 0, 0, 0],// 17
-	[0, 0, 0, 0],// 18
-	[0, 0, 0, 0],// 19
-	[0, 3.1, 0, 0],// 19
-	[0, 6.2, 0, 0],// 19
-	[0, 9.2, 0, 0],// 19
-	[0, 12, 0, 0],// 20
-	[0, 15., 0, 0],// 21
-	[0, 33.2, 0, 0],// 22
-	[1.7, 29, 0.57, 2],// 23
-	[1.6, 25, 0.55, 2],// 24
-	[1.5, 21, 0.53, 2],// 25
-	[1.4, 16, 0.56, 2],// 26
-	[1.3, 11, 0.59, 2],// 27
-	[1.6, 25, 0.55, 2],// 24
-	[1.5, 31, 0.53, 2],// 25
-	[1.4, 36, 0.56, 2],// 26
-	[1.6, 38, 0.55, 2],// 24
-	[1.5, 48, 0.53, 2],// 25
-	[1.4, 50, 0.56, 2],// 26
-	[0, 0, 0, 0],// 28
-	[0, 0, 0, 0],// 28
-	[0, 0, 0, 0],// 28
-	[0, 0, 0, 0],// 28
-	[0, 0, 0, 0]// 28
-];
+var datals: ReactiveVariable<[number, number, number, number][]>;
 
 const timer = ref(0);
 
 const fake_handle = () => {
 
-	msg_handle();
+	// msg_handle();
+
 
 	console.log("good");
 
 	setInterval(() => {
 
 		const currentTime = Math.round(ArtPlayerInstance.currentTime);
-		console.log(ArtPlayerInstance.currentTime)
+		console.log(ArtPlayerInstance.currentTime);
+
+		Hook.ExecuteHook(currentTime)
 
 		timer.value = currentTime;
 		// console.log($video.currentTime);
@@ -235,15 +191,20 @@ const fake_handle = () => {
 		if (datals[currentTime][3] == 0) curling_status.value = "间隙";
 		if (datals[currentTime][3] == 1) curling_status.value = "投掷中";
 		if (datals[currentTime][3] == 2) curling_status.value = "已出手，磕碰";
+		if (datals[currentTime][3] == 3) curling_status.value = "已出手，大力击打";
 	}, 500);
 };
 
 let ArtPlayerInstance: Artplayer;
 
 const getArtPlayerInstance = (ArtPlayer: Artplayer) => {
-	ArtPlayerInstance = ArtPlayer
+	ArtPlayerInstance = ArtPlayer;
 	console.log(ArtPlayer);
 	console.log(ArtPlayer.currentTime);
+
+	ArtPlayerInstance.on("seek", () => {
+		Hook.InitHook();
+	});
 };
 
 

@@ -97,10 +97,10 @@ def main(moving, speed, static, color):
             cv2.line(src, k, t, l[0], 2)
 
         # 在图像上绘制两个球的位置，颜色为白色，线宽为-1（表示填充）
-        cv2.circle(img, Ball1CurrentPos, CurlingSize, (0, 0, 255), -1)
+        cv2.circle(img, Ball1CurrentPos, CurlingSize, (0, 255, 255), -1)
         cv2.circle(img, Ball1CurrentPos, CurlingSize, (0, 0, 0), 2)
 
-        cv2.line(src, Ball1Pos, Ball1CurrentPos, (0, 0, 255), 2)
+        cv2.line(src, Ball1Pos, Ball1CurrentPos, (255, 255, 0), 2)
 
         Ball1Pos = Ball1CurrentPos
         Ball2Pos = Ball2CurrentPos
@@ -108,20 +108,19 @@ def main(moving, speed, static, color):
         # 显示图像，并等待10毫秒的按键
         cv2.imshow("Simulation", img)
 
-
     waitKey = 1
 
-    out = cv2.VideoWriter('out.avi', cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 60, (src.shape[1], src.shape[0]))
+    # out = cv2.VideoWriter('out.avi', cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 60, (src.shape[1], src.shape[0]))
 
     # 循环更新空间对象，模拟物理运动
-    for i in range(300):
+    for i in range(90):
         img = src.copy()
 
         for i in range(1):
             space.step(dt)
 
         render()
-        out.write(img)
+        # out.write(img)
 
         key = cv2.waitKey(int(waitKey))
 
@@ -133,13 +132,14 @@ def main(moving, speed, static, color):
             ballColor = [getRandomColor() for i in Ball2Init]
             render()
             key = cv2.waitKey(0)
-        
+
         if key == 113:
             break
         if key == 114:
             exit(0)
-        
-    out.release()
+
+    key = cv2.waitKey(0)
+    # out.release()
 
 
 def label2color(label):
@@ -149,11 +149,11 @@ def label2color(label):
             res.append(((0, 0, 255), (0, 0, 255)))
         else:
             res.append(((255, 255, 0), (0, 255, 255)))
-    
+
     return res
 
 
 main(moving=(100, 200),
-     speed=(0, 200),
-     static=[(112, 441), (76, 436), (60, 475), (106, 575), (74, 541), (83, 360)],
-     color=label2color([2, 1, 2, 2, 1, 2]))
+     speed=(10, 200),
+     static=[(76, 436), (60, 475), (106, 575), (74, 541), (83, 360)],
+     color=label2color([1, 2, 2, 1, 2]))

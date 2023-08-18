@@ -6,10 +6,17 @@ export const TTS = (text: string, rate?: number, pitch?: number, voice?: SpeechS
 
     const utterThis = new SpeechSynthesisUtterance(text);
 
-    utterThis.voice = window.speechSynthesis.getVoices()[63];
+    console.log(window.speechSynthesis.getVoices());
+    window.speechSynthesis.getVoices();
 
-    utterThis.rate = rate || 1;
-    utterThis.pitch = pitch || 1;
+    setTimeout(() => {
+        // console.log(window.speechSynthesis.getVoices());
 
-    window.speechSynthesis.speak(utterThis);
+        utterThis.voice = window.speechSynthesis.getVoices()[63];
+        utterThis.rate = rate || 1;
+        utterThis.pitch = pitch || 1;
+
+        window.speechSynthesis.speak(utterThis);
+    }, 100);
+
 };
