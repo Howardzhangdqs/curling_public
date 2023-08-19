@@ -23,4 +23,4 @@ export const InitHook = (): void => {
     for (const i in hooks) {
         hooks[i].executed = false;
     }
-}
+};

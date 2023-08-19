@@ -12,7 +12,7 @@ export const TTS = (text: string, rate?: number, pitch?: number, voice?: SpeechS
     setTimeout(() => {
         // console.log(window.speechSynthesis.getVoices());
 
-        utterThis.voice = window.speechSynthesis.getVoices()[63];
+        utterThis.voice = voice || window.speechSynthesis.getVoices()[63];
         utterThis.rate = rate || 1;
         utterThis.pitch = pitch || 1;
 

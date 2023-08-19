@@ -48,7 +48,7 @@ export default {
 
         this.instance.on("resize", () => {
             this.resize();
-        })
+        });
     },
     methods: {
         resize() {

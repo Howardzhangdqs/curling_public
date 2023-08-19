@@ -20,11 +20,6 @@
 
 import { reactive } from "vue";
 
-const links: string[] = [
-    "控制面板",
-    "模块状况"
-];
-
 const statuses = [
     "重启中",
     "重连中",
@@ -98,21 +93,22 @@ const modules = reactive<{
     },
     {
         name: "目标检测",
-        status: 3,
+        status: 2,
         cols: 3,
         machine: 3
     },
     {
         name: "数据平滑",
-        status: 1,
+        status: 3,
         cols: 2,
         machine: 2
     },
     {
         name: "阵型识别",
-        status: 1,
+        status: 3,
         cols: 2,
-        machine: 2
+        machine: 2,
+        delay: 10
     },
     {
         name: "感官增强",
@@ -130,8 +126,6 @@ const modules = reactive<{
         cols: 3
     }
 ]);
-
-const loading = reactive(new Array(modules.length).fill(true));
 
 </script>
 

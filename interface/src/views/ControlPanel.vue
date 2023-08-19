@@ -37,6 +37,13 @@
 
 					</template>
 
+					<template v-if="alert">
+
+						<v-divider class="my-2"></v-divider>
+						<v-alert v-for="item in alert" type="error" title="出现错误" :text="item" variant="tonal"></v-alert>
+
+					</template>
+
 					<v-divider class="my-2"></v-divider>
 
 					<v-list-item link color="grey-lighten-4">
@@ -109,7 +116,7 @@ axios.get("/data.json").then(({ data }) => {
 				}
 			})();
 		});
-	};
+	}
 
 	const physicals = data.physical as PhysicalType[];
 
@@ -117,7 +124,7 @@ axios.get("/data.json").then(({ data }) => {
 		Hook.AddHook(physical.time, () => {
 			PhysicalSimulation.value = physical.src;
 			console.log(PhysicalSimulation.value);
-		})
+		});
 	}
 });
 
@@ -148,8 +155,6 @@ const curling_data = reactive([
 
 const curling_status = ref("间隙");
 
-const video_player = ref();
-
 
 onMounted(() => {
 	fake_handle();
@@ -173,7 +178,7 @@ const fake_handle = () => {
 		const currentTime = Math.round(ArtPlayerInstance.currentTime);
 		console.log(ArtPlayerInstance.currentTime);
 
-		Hook.ExecuteHook(currentTime)
+		Hook.ExecuteHook(currentTime);
 
 		timer.value = currentTime;
 		// console.log($video.currentTime);
@@ -206,6 +211,14 @@ const getArtPlayerInstance = (ArtPlayer: Artplayer) => {
 		Hook.InitHook();
 	});
 };
+
+const alert: Ref<string[]> = ref([]);
+
+// setTimeout(() => {
+// 	ArtPlayerInstance.pause()
+// 	alert.value.push("模块 `数据平滑` 掉线");
+// 	alert.value.push("模块 `阵型识别` 掉线");
+// }, 10000);
 
 
 </script>
