@@ -12,8 +12,8 @@ import GetBattleGroundPos.main as GetBattleGroundPos
 
 class TargetDetection:
 
-    def __init__(self):
-        self.CurlingDet = TargetDetectionCurling.Detector()
+    def __init__(self, device="cpu"):
+        self.CurlingDet = TargetDetectionCurling.Detector(device=device)
 
     def camp(self, img):
         img = img.copy()

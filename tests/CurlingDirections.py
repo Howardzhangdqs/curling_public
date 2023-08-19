@@ -22,7 +22,7 @@ except:
 if __name__ == "__main__":
     cap = cv2.VideoCapture('../videos/target2.tiny.mp4')
 
-    TargetDetection = TargetDetection.TargetDetection()
+    TargetDetection = TargetDetection.TargetDetection(device="cuda:0")
 
     if cap.isOpened():
 
