@@ -1,26 +1,36 @@
 import torch.nn as nn
 
 
+# 生成块
+def makeBlock(input_len, output_len, hidden_len=64):
+    return nn.Sequential(
+        nn.Linear(input_len, hidden_len),
+        nn.ReLU(),
+        nn.Linear(hidden_len, output_len),
+        nn.ReLU(),
+    )
+
+
 # 定义卷积神经网络模型类
 class net(nn.Module):
 
     def __init__(self):
         super(net, self).__init__()
-        # 定义第一个卷积层，输入通道数为3（color, offsetX, offsetY）
-        self.conv1 = nn.Conv2d(3, 16, 3, 1, 1)
-        self.conv2 = nn.Conv2d(16, 32, 3, 1, 1)
-        self.fc = nn.Linear(32, 8)
-        self.relu = nn.ReLU()
+        # 定义第一个全连接层，输入一个长度为20的序列，每个包含三个通道（color, offsetX, offsetY）
+        self.block1 = makeBlock(3 * 20, 64)
+        self.block2 = makeBlock(64, 32)
+        self.block3 = makeBlock(32, 8)
 
-    # 定义forward方法
     def forward(self, x):
-        x = self.conv1(x)
-        x = self.relu(x)
-        x = self.conv2(x)
-        x = self.relu(x)
 
-        # 将输出x的形状变为(batch_size, 32x1x1)，方便输入全连接层
-        x = x.view(-1, 32)
+        x = self.block1(x)
+        x = self.block2(x)
+        x = self.block3(x)
 
-        x = self.fc(x)
         return x
+
+
+if __name__ == "__main__":
+    # 测试
+    model = net()
+    print(model)
